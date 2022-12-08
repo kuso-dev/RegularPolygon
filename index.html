@@ -2,68 +2,113 @@
 <html lang="ja">
 
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>RegularPolygon</title>
-	<style>
-		* {
-			margin: 0;
-			padding: 0;
-		}
-
-		body {
-			background-color: #000;
-			text-align: center;
-		}
-
-		p,
-		label {
-			color: #fff;
-			margin-top: 60px;
-		}
-
-		@keyframes rotation {
-			0% {
-				transform: rotate(0deg);
-			}
-
-			100% {
-				transform: rotate(360deg);
-			}
-		}
-
-		#starfield {
-			position: absolute;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 100%;
-			z-index: -1;
-		}
-
-		#cv {
-			animation: rotation linear 10s infinite;
-		}
-
-		form {
-			margin-top: 20px;
-		}
-	</style>
+	<meta charset="UTF-8" />
+	<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+	<title>RegularPolzygon</title>
+	<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-	<canvas id="starfield"></canvas>
-	<p>
-		Polygon Shape: <span id="title">3</span><br>
-		Vertex Count: <span id="vertex"></span>
-	</p>
-	<canvas id="cv" width="500" height="500"></canvas>
-	<form id="select" name="select">
-		<input id="number_input" type="number" name="number" class="number" min="2" value="3" step="0.01"
-			onchange="draw()">
-	</form>
+	<div id="app">
+		<canvas id="starfield"></canvas>
+		<p>
+			Angle: <span id="title">{{ angle }}</span><br>
+			Vertex: <span id="vertex">{{ vertex }}</span>
+		</p>
+		<canvas id="canvas" :width="canvasSize" :height="canvasSize"></canvas>
+		<div class="form">
+			<p>Step</p>
+			<select v-model="step">
+				<option>0.1</option>
+				<option>1</option>
+				<option>10</option>
+			</select>
+			<button @click="increment">△</button>
+			<button @click="decrement">▽</button>
+		</div>
+	</div>
 </body>
-<script src="main.js"></script>
+<script>
+	const RADIUS = 200
+
+	new Vue({
+		el: '#app',
+		data: {
+			canvas: null,
+			canvasSize: Math.min(window?.innerWidth * 0.5 || 500, window?.innerHeight * 0.5),
+			ctx: null,
+			ctxHandlers: [],
+			grad: null,
+			angle: 3,
+			vertex: 3,
+			step: 0.1
+		},
+		mounted() {
+			this.initPolygon()
+			this.drawPolygon()
+		},
+		watch: {
+			angle() {
+				this.drawPolygon()
+			}
+		},
+		methods: {
+			initPolygon() {
+				this.canvas = document.getElementById("canvas");
+				this.ctx = this.canvas.getContext("2d");
+				this.grad = this.ctx.createLinearGradient(0, 0, 0, 600);
+				this.grad.addColorStop(0, 'rgb(255, 255, 0)');
+				this.grad.addColorStop(0.5, 'rgb(0, 255, 255)');
+				this.grad.addColorStop(1, 'rgb(255, 0, 255)');
+				this.ctx.strokeStyle = this.grad;
+			},
+			drawPolygon() {
+				this.vertex = ((_) => {
+					const precision = 4;
+					const correction = 0.5;
+					var n = Math.floor(_ * 10 ** precision + correction);
+					for (var i = 0; i < precision; i++) {
+						if (n % 2 == 0) n = n / 2;
+						if (n % 5 == 0) n = n / 5;
+					}
+					return n
+				})(this.angle)
+
+				console.log(this.vertex);
+
+				this.ctx.clearRect(0, 0, this.canvasSize, this.canvasSize);
+				// 残存中の描画ハンドラ中断
+				this.ctxHandlers.forEach(id => clearTimeout(id))
+
+				var degree = Math.PI * 2 / this.angle;
+				var dX = 0;
+				var dY = 0;
+
+				this.ctx.beginPath();
+				this.ctx.moveTo(this.canvasSize / 2 + RADIUS * Math.cos(degree), this.canvasSize / 2 + RADIUS * Math.sin(degree));
+
+				for (var _ = 0; _ < this.vertex; _++) {
+					const id = setTimeout(() => {
+						degree = degree + Math.PI * 2 / this.angle;
+						dX = RADIUS * Math.cos(degree);
+						dY = RADIUS * Math.sin(degree);
+						this.ctx.lineTo(this.canvasSize / 2 + dX, this.canvasSize / 2 + dY);
+						this.ctx.stroke();
+					}, _ * 50)
+					this.ctxHandlers.push(id)
+				}
+			},
+			increment() {
+				const precision = 2
+				this.angle = Math.floor(this.angle * 10 ** precision + Number(this.step) * 10 ** precision) / 10 ** precision;
+			},
+			decrement() {
+				const precision = 2
+				this.angle = Math.floor(this.angle * 10 ** precision - Number(this.step) * 10 ** precision) / 10 ** precision;
+			}
+		}
+	});
+</script>
 <script src="star.js"></script>
 
 </html>
