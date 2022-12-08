@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>RegularPolygon</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			background-color: #000;
+			text-align: center;
+		}
+
+		p,
+		label {
+			color: #fff;
+			margin-top: 60px;
+		}
+
+		@keyframes rotation {
+			0% {
+				transform: rotate(0deg);
+			}
+
+			100% {
+				transform: rotate(360deg);
+			}
+		}
+
+		#starfield {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			z-index: -1;
+		}
+
+		#cv {
+			animation: rotation linear 10s infinite;
+		}
+
+		form {
+			margin-top: 20px;
+		}
+	</style>
+</head>
+
+<body>
+	<canvas id="starfield"></canvas>
+	<p>
+		Polygon Shape: <span id="title">3</span><br>
+		Vertex Count: <span id="vertex"></span>
+	</p>
+	<canvas id="cv" width="500" height="500"></canvas>
+	<form id="select" name="select">
+		<input id="number_input" type="number" name="number" class="number" min="2" value="3" step="0.01"
+			onchange="draw()">
+	</form>
+</body>
+<script src="main.js"></script>
+<script src="star.js"></script>
+
+</html>
