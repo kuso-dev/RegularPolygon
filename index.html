@@ -104,7 +104,7 @@
 				this.angle = dst.toFixed(2);
 			},
 			decrement() {
-				const dts = Math.floor(this.angle * 10 ** PRECISION - Number(this.step) * 10 ** PRECISION) / 10 ** PRECISION;
+				const dst = Math.floor(this.angle * 10 ** PRECISION - Number(this.step) * 10 ** PRECISION) / 10 ** PRECISION;
 				this.angle = dst.toFixed(2);
 			}
 		}
